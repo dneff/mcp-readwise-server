@@ -1,0 +1,49 @@
+{
+  "manifest_version": "0.4",
+  "name": "readwise",
+  "display_name": "Readwise",
+  "version": "1.0.0",
+  "description": "Read your Readwise library — books, highlights, daily review, and tags — via a progressive-discovery catalog.",
+  "author": {
+    "name": "Dan Neff",
+    "email": "dan@neff.cc"
+  },
+  "license": "MIT",
+  "keywords": ["readwise", "highlights", "books", "mcp"],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18"
+    }
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "build/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/build/index.js"],
+      "env": {
+        "READWISE_TOKEN": "${user_config.readwise_token}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "list-operations",
+      "description": "Catalog of available Readwise API operations and their argument schemas."
+    },
+    {
+      "name": "invoke-operation",
+      "description": "Execute a Readwise operation by name with the given arguments."
+    }
+  ],
+  "user_config": {
+    "readwise_token": {
+      "type": "string",
+      "title": "Readwise API Token",
+      "description": "Your personal Readwise access token. Generate one at https://readwise.io/access_token",
+      "sensitive": true,
+      "required": true
+    }
+  }
+}
