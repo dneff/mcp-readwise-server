@@ -11,7 +11,20 @@ import { z } from "zod";
 const READWISE_TOKEN = process.env.READWISE_TOKEN;
 
 if (!READWISE_TOKEN) {
-	console.error("Error: READWISE_TOKEN is not set in the environment variables.");
+	console.error([
+		"",
+		"mcp-readwise-server: READWISE_TOKEN environment variable is not set.",
+		"",
+		"Generate a token at https://readwise.io/access_token, then provide it via:",
+		"  • Claude Desktop: install the .mcpb bundle and paste the token when prompted",
+		"                    (Settings → Extensions → Readwise → Configure to update later).",
+		"  • Claude Code:    claude mcp add readwise -s user \\",
+		"                      -e READWISE_TOKEN=<your_token> \\",
+		"                      -- node <absolute-path>/build/index.js",
+		"  • Other clients:  set READWISE_TOKEN in the server process's env block.",
+		"                    See README.md for client-specific examples.",
+		"",
+	].join("\n"));
 	process.exit(1);
 }
 

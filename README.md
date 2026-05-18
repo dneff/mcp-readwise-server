@@ -49,15 +49,72 @@ The repository ships a [Claude Desktop Extension](https://www.anthropic.com/engi
 
 To update the token later, go to **Settings → Extensions → Readwise → Configure**.
 
-## Install manually (other MCP clients)
+## Install in Claude Code (CLI)
 
-For clients without `.mcpb` support (Cursor, raw Claude Code config, etc.), build the server and reference it directly:
+Claude Code doesn't read `.mcpb` bundles — use `claude mcp add` instead. First build the server:
 
 ```bash
 npm install   # triggers `prepare`, which compiles to build/
 ```
 
-Then add to your client's MCP server config (`~/.claude.json`, Cursor's MCP settings, etc.):
+**Quick install (token in config)** — adds `readwise` at user scope so it's available across all your Claude Code projects:
+
+```bash
+claude mcp add readwise -s user \
+  -e READWISE_TOKEN=YOUR_TOKEN \
+  -- node /absolute/path/to/mcp-readwise-server/build/index.js
+```
+
+Unlike Claude Desktop, Claude Code has no OS-keychain integration — `-e READWISE_TOKEN=...` writes the token in **plaintext** to `~/.claude.json`. For a personal machine that's no different from any other dotfile config. If you'd rather not store the literal token in a file, use the env-sourced approach below.
+
+**Source the token from the environment (recommended)** — keeps the token out of any committed or synced config file. Create `.mcp.json` at the project root:
+
+```json
+{
+  "mcpServers": {
+    "readwise": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-readwise-server/build/index.js"],
+      "env": { "READWISE_TOKEN": "${READWISE_TOKEN}" }
+    }
+  }
+}
+```
+
+Then export the token from your shell — either statically:
+
+```bash
+# in ~/.zshrc or ~/.bashrc
+export READWISE_TOKEN="rw_..."
+```
+
+…or pulled from a secret manager at shell start (preferred for shared machines):
+
+```bash
+export READWISE_TOKEN="$(op item get Readwise --fields token)"   # 1Password CLI
+export READWISE_TOKEN="$(bw get password readwise)"              # Bitwarden CLI
+```
+
+Claude Code prompts once for trust the first time it sees `.mcp.json`. Only the `${READWISE_TOKEN}` *reference* lives in the file — safe to commit.
+
+If `READWISE_TOKEN` is unset when the server starts, it exits early with an instructional error message pointing to this section.
+
+**Verify:**
+
+```bash
+claude mcp list                # readwise should appear
+claude mcp get readwise        # full config including command + env
+```
+
+## Install manually (other MCP clients)
+
+For clients without their own `mcp add` flow (Cursor, custom integrations), build the server and reference it directly:
+
+```bash
+npm install
+```
+
+Then add to the client's MCP server config:
 
 ```json
 {
